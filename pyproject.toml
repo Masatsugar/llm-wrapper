@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "llm-wrapper"
+version = "0.1.0"
+description = ""
+authors = ["Masatsugar <20656329+Masatsugar@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^1.58.1"
+fire = "^0.7.0"
+tenacity = "^9.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.4"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
