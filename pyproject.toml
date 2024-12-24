@@ -6,10 +6,12 @@ authors = ["Masatsugar <20656329+Masatsugar@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.9,<3.13"
 openai = "^1.58.1"
 fire = "^0.7.0"
 tenacity = "^9.0.0"
+notebook = "^7.3.2"
+pillow = "^11.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

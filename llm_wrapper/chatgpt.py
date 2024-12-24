@@ -5,6 +5,8 @@ from typing import Optional
 import fire
 import openai
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+from PIL import Image
+from llm_wrapper.utils import pil_image_to_base64
 
 
 class ChatGPT:
@@ -80,7 +82,19 @@ class ChatGPT:
                 _response = self.generate_by_azure_openai(self.messages)
         return _response
 
-    def __call__(self, content):
+    def __call__(self, content, image: Optional[Image.Image] = None):
+        if image:
+            base64_image = pil_image_to_base64(image)
+            image_url = f"data:image/jpeg;base64,{base64_image}"
+            content = [
+                {"type": "text", "text": content},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": image_url},
+                    "detail": "high",
+                },
+            ]
+
         self.messages.append({"role": "user", "content": content})
         _response = self.generate_response()
         self.usages.append(_response.usage.model_dump())
