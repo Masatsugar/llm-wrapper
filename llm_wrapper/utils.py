@@ -4,6 +4,52 @@ import requests
 
 from PIL import Image
 from io import BytesIO
+import openai
+
+import json
+
+from pydantic import BaseModel
+
+client = openai.AzureOpenAI(
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT_Dev"),
+    api_key=os.getenv("OPENAI_API_KEY_Dev"),
+    api_version="2024-09-01-preview",
+)
+
+
+def run_chatgpt(
+    user_prompt: str,
+    model: str = "gpt-4o",
+    system_prompt: str = "You are a helpful assistant",
+    **kwargs,
+) -> str:
+    """Run a single chatgpt call to address the `user_prompt`."""
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+
+    messages.append({"role": "user", "content": user_prompt})
+    response = client.chat.completions.create(
+        messages=messages,
+        model=model,
+        **kwargs,
+    )
+    return response.choices[0].message.content
+
+
+def JSON_llm(user_prompt: str, schema, system_prompt: str = None, **kwargs):
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+
+    messages.append({"role": "user", "content": user_prompt})
+    extract = client.beta.chat.completions.parse(
+        messages=messages,
+        model="gpt-4o",
+        response_format=schema,
+        **kwargs,
+    )
+    return json.loads(extract.choices[0].message.content)
 
 
 def fetch_image_from_web(url: str) -> Image.Image:
@@ -107,3 +153,30 @@ def pil_image_to_base64(image: Image.Image) -> str:
         return img_str
     except ValueError as e:
         raise ValueError(f"Error encoding image to Base64: {e}")
+
+
+def chain_of_thoughts(chatgpt, messages):
+    class Step(BaseModel):
+        explanation: str
+        output: str
+
+    class Reasoning(BaseModel):
+        steps: list[Step]
+        final_answer: str
+
+    response = chatgpt.client.beta.chat.completions.parse(
+        model=chatgpt.config.deployment_id,
+        messages=messages,
+        response_format=Reasoning,
+    )
+    return response
+
+
+def make_tool(func):
+    return {
+        "type": "function",
+        "function": {
+            "name": func.__name__,
+            "description": func.__doc__ or "",  # Use the docstring for the description.
+        },
+    }

@@ -1,3 +1,3 @@
-from .chatgpt import ChatGPT
+from .chatgpt import ChatGPT, ChatGPTConfig
 
-__all__ = ["ChatGPT"]
+__all__ = ["ChatGPT", "ChatGPTConfig"]
