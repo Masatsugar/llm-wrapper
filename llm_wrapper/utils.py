@@ -156,6 +156,10 @@ def pil_image_to_base64(image: Image.Image) -> str:
 
 
 def chain_of_thoughts(chatgpt, messages):
+    """
+    Chain of Thoughts from "https://platform.openai.com/docs/guides/structured-outputs"
+    """
+
     class Step(BaseModel):
         explanation: str
         output: str

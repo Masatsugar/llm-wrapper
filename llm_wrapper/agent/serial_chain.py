@@ -1,10 +1,9 @@
 # Agent Recipes:
 # based on "https://www.agentrecipes.com/"
 import os
-import json
 from typing import List, Tuple, Literal, Dict
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 from llm_wrapper import ChatGPT
 from llm_wrapper.utils import run_chatgpt, JSON_llm

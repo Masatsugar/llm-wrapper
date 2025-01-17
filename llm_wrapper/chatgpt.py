@@ -4,7 +4,6 @@ from typing import Optional, List, Dict, Any, Callable
 
 import fire
 import openai
-from openai import BaseModel
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 from PIL import Image
 from llm_wrapper.utils import pil_image_to_base64

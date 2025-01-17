@@ -28,8 +28,6 @@ print(response)
 - Use tool
 
 ```python
-from llm_wrapper.utils import make_tool
-
 # 1. First, define your function.
 def get_current_time():
     """Get the current time in ISO 8601 format."""
@@ -40,15 +38,16 @@ def get_current_time():
 my_functions = [get_current_time]
 
 # 3. Automatically generate both tools and available_functions from my_functions.
+from llm_wrapper.utils import make_tool
 tools = [make_tool(f) for f in my_functions]
 available_functions = {f.__name__: f for f in my_functions}
 
-# 5. Update config and create the ChatGPT instance.
+# 4. Update config and create the ChatGPT instance.
 config.tools = tools
 config.available_functions = available_functions
 chatgpt = ChatGPT(config)
 
-# 6. Run a query.
+# 5. Run a query.
 response = chatgpt("What time is it now?")
 print(response)
 ```
