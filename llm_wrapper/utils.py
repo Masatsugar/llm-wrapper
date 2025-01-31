@@ -4,26 +4,43 @@ import requests
 
 from PIL import Image
 from io import BytesIO
-import openai
-
 import json
 
 from pydantic import BaseModel
 
-client = openai.AzureOpenAI(
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT_Dev"),
-    api_key=os.getenv("OPENAI_API_KEY_Dev"),
-    api_version="2024-09-01-preview",
-)
+import openai
+
+_client = None  # Global variable to store the OpenAI client
+
+
+def get_client(azure_endpoint=None, api_key=None, api_version=None):
+    if azure_endpoint is None:
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    if api_key is None:
+        api_key = os.getenv("OPENAI_API_KEY")
+    if api_version is None:
+        api_version = "2024-09-01-preview"
+
+    global _client
+    if _client is None:
+        if not azure_endpoint or not api_key:
+            raise ValueError("AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY is not set.")
+        _client = openai.AzureOpenAI(
+            azure_endpoint=azure_endpoint,
+            api_key=api_key,
+            api_version=api_version,
+        )
+    return _client
 
 
 def run_chatgpt(
+    model: str,
     user_prompt: str,
-    model: str = "gpt-4o",
     system_prompt: str = "You are a helpful assistant",
     **kwargs,
 ) -> str:
     """Run a single chatgpt call to address the `user_prompt`."""
+    client = get_client(**kwargs)
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -37,7 +54,8 @@ def run_chatgpt(
     return response.choices[0].message.content
 
 
-def JSON_llm(user_prompt: str, schema, system_prompt: str = None, **kwargs):
+def JSON_llm(model, user_prompt: str, schema, system_prompt: str = None, **kwargs):
+    client = get_client(**kwargs)
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -45,7 +63,7 @@ def JSON_llm(user_prompt: str, schema, system_prompt: str = None, **kwargs):
     messages.append({"role": "user", "content": user_prompt})
     extract = client.beta.chat.completions.parse(
         messages=messages,
-        model="gpt-4o",
+        model=model,
         response_format=schema,
         **kwargs,
     )

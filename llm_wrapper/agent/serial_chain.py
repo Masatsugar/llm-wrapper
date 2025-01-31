@@ -5,7 +5,7 @@ from typing import List, Tuple, Literal, Dict
 
 from pydantic import BaseModel, Field
 
-from llm_wrapper import ChatGPT
+from llm_wrapper import ChatGPT, ChatGPTConfig
 from llm_wrapper.utils import run_chatgpt, JSON_llm
 
 
@@ -65,12 +65,13 @@ def test_serial_chain_workflow(is_chat_history=False):
     ]
 
     if is_chat_history:
-        chatgpt = ChatGPT(
+        config = ChatGPTConfig(
             deployment_id="gpt-4o",
             azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT_Dev"),
             api_key=os.getenv("OPENAI_API_KEY_Dev"),
             api_version="2024-09-01-preview",
         )
+        chatgpt = ChatGPT(config)
         responses, chatgpt = serial_chain_workflow_with_history(
             chatgpt, question, prompt_chain
         )

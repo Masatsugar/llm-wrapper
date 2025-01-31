@@ -165,14 +165,14 @@ def test_response(
 ) -> None:
     config = ChatGPTConfig(
         deployment_id=os.getenv("MODEL_ID", model_id),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT_Dev", azure_endpoint),
-        api_key=os.getenv("OPENAI_API_KEY_Dev", api_key),
+        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT", azure_endpoint),
+        api_key=os.getenv("OPENAI_API_KEY", api_key),
         api_version="2024-09-01-preview",
     )
 
     if config.azure_endpoint is None:
         raise ValueError("Please set the environment variable AZURE_OPENAI_ENDPOINT")
-    if config.api_key is None:
+    if config._api_key is None:
         raise ValueError("Please set the environment variable OPENAI_API_KEY")
 
     # test_tool / test_cot / normal
@@ -230,6 +230,8 @@ def test_cot(chatgpt: ChatGPT):
     """
     Test for CoT(Chain of Thoughts)
     """
+    from llm_wrapper.utils import chain_of_thoughts
+
     messages = [
         {
             "role": "system",
@@ -237,7 +239,7 @@ def test_cot(chatgpt: ChatGPT):
         },
         {"role": "user", "content": "How can I solve 8x + 7 = -23?"},
     ]
-    completion = chatgpt.chain_of_thoughts(messages)
+    completion = chain_of_thoughts(chatgpt, messages)
     print(completion.choices[0].message.parsed)
 
 
